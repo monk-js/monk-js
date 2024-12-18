@@ -1,0 +1,65 @@
+{
+  "name": "@monk-js/utils",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "description": "Node.js utilities for monorepo management",
+  "exports": {
+    "default": "./dist/utils.js",
+    "types": "./dist/utils.d.ts",
+    "import": "./dist/utils.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "dist/utils.js",
+  "module": "dist/utils.js",
+  "types": "dist/utils.d.ts",
+  "scripts": {
+    "prebuild": "tsc -p ./tsconfig.build.json",
+    "build": "yarn prebuild",
+    "bump-patch": "yarn version patch && yarn bump:git",
+    "bump-minor": "yarn version minor && yarn bump:git",
+    "bump-major": "yarn version major && yarn bump:git",
+    "bump:git": "yarn bump:git-commit && yarn bump:git-tag && yarn bump:git-push",
+    "bump:git-commit": "cross-var git commit -a -m v$npm_package_version",
+    "bump:git-tag": "cross-var git tag -a v$npm_package_version -m v$npm_package_version",
+    "bump:git-push": "git push origin master && cross-var git push origin v$npm_package_version",
+    "ci:build": "yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monk-js/monk-js.git",
+    "directory": "packages/utils"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "cross-env": "^7.0.3",
+    "cross-var": "^1.1.0",
+    "fs": "^0.0.1-security",
+    "rollup": "^4.28.1",
+    "rollup-plugin-dts": "^6.1.1",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.6.0",
+    "@types/node": "^20.14.9",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.14.1",
+    "eslint": "^9.6.0",
+    "globals": "^15.7.0",
+    "node-ts-loader": "^1.0.0",
+    "typescript": "^5.5.2"
+  },
+  "packageManager": "yarn@3.6.4+sha512.e70835d4d6d62c07be76b3c1529cb640c7443f0fe434ef4b6478a5a399218cbaf1511b396b3c56eb03bc86424cff2320f6167ad2fde273aa0df6e60b7754029f"
+}
