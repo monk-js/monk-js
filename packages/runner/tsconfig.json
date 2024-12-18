@@ -1,0 +1,38 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "@/*": [
+        "usr/src/*"
+      ],
+      "~*": [
+        "../../node_modules/*"
+      ],
+      "#/*": [
+        "gen/*"
+      ]
+    }
+  },
+  "include": [
+    "gen",
+    "usr",
+    "*.mts",
+    "*.ts",
+    "*.js",
+    "*.mjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "coverage"
+  ],
+  "ts-node": {
+    "esm": true
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
+}

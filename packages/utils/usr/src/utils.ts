@@ -332,7 +332,9 @@ export async function buildJs(entry: string, buildDir: string, basePath: string,
 
     const bundle = await rollup({
         ...input,
-        plugins: [typescript()],
+        plugins: [typescript({
+            tsconfig: false
+        })],
     });
 
     for(const _ of formats.split(',')) {
@@ -386,7 +388,9 @@ export async function buildDts(entry: string, buildDir: string, basePath: string
 
     const dtsBundle = await rollup({
         ...input,
-        plugins: [typescript(), dts()],
+        plugins: [typescript({
+            tsconfig: false
+        }), dts()],
     });
     await dtsBundle.write(dtsOutput);
     await dtsBundle.close();
