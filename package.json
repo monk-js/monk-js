@@ -1,0 +1,79 @@
+{
+  "name": "monk-js",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "description": "Node.js utilities for monorepo management",
+  "exports": {
+    ".": "./dist/monk.cjs",
+    "./bundler": "./dist/bundler.js",
+    "./bundler.js": "./dist/bundler.js",
+    "./bundler.mjs": "./dist/bundler.mjs",
+    "./runner": "./dist/runner.js",
+    "./runner.js": "./dist/runner.js",
+    "./runner.mjs": "./dist/runner.mjs",
+    "./utils": "./dist/utils.js"
+  },
+  "bin": {
+    "monk-bundle": "./dist/bundler.js",
+    "monk-run": "./dist/runner.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "dist/monk.js",
+  "module": "dist/monk.mjs",
+  "types": "dist/monk.d.ts",
+  "scripts": {
+    "node:esm:env": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --experimental-specifier-resolution=node --experimental-json-modules\"",
+    "node:esm:env:debug": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --inspect-brk --experimental-specifier-resolution=node --experimental-json-modules\"",
+    "run:node": "node",
+    "run:ts-node": "ts-node --project ./tsconfig.node.json",
+    "node:esm": "yarn node:esm:env yarn run:node",
+    "node:esm:debug": "yarn node:esm:env:debug yarn run:node",
+    "node:ts": "yarn node:esm:env yarn run:ts-node",
+    "node:ts:debug": "yarn node:esm:env:debug yarn run:ts-node",
+    "prebuild": "tsc -p ./tsconfig.build.json",
+    "bundle": "yarn node:ts usr/src/bundler.ts --root ../../ --formats es:js,esm:mjs --entry",
+    "build": "yarn prebuild && yarn bundle usr/src/bundler.ts && yarn bundle ./usr/src/runner.ts && yarn bundle ./usr/src/utils.ts && yarn bundle ./usr/src/monk.ts --formats es:js,esm:mjs,cjs",
+    "bump-patch": "yarn version patch && yarn bump:git",
+    "bump-minor": "yarn version minor && yarn bump:git",
+    "bump-major": "yarn version major && yarn bump:git",
+    "bump:git": "yarn bump:git-commit && yarn bump:git-tag && yarn bump:git-push",
+    "bump:git-commit": "cross-var git commit -a -m v$npm_package_version",
+    "bump:git-tag": "cross-var git tag -a v$npm_package_version -m v$npm_package_version",
+    "bump:git-push": "git push origin master && cross-var git push origin v$npm_package_version",
+    "ci:build": "yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monk-js/monk-js.git"
+  },
+  "dependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "cross-env": "^7.0.3",
+    "cross-var": "^1.1.0",
+    "fs": "^0.0.1-security",
+    "rollup": "^4.28.1",
+    "rollup-plugin-dts": "^6.1.1",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.6.0",
+    "@types/node": "^20.14.9",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.14.1",
+    "eslint": "^9.6.0",
+    "globals": "^15.7.0",
+    "node-ts-loader": "^1.0.0",
+    "typescript": "^5.5.2"
+  },
+  "packageManager": "yarn@3.6.4+sha512.e70835d4d6d62c07be76b3c1529cb640c7443f0fe434ef4b6478a5a399218cbaf1511b396b3c56eb03bc86424cff2320f6167ad2fde273aa0df6e60b7754029f"
+}
