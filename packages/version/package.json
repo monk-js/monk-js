@@ -1,5 +1,5 @@
 {
-  "name": "@monk-js/utils",
+  "name": "@monk-js/version",
   "version": "1.0.6",
   "license": "MIT",
   "type": "module",
@@ -10,7 +10,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs"
     },
-    "./utils": "./dist/utils.js"
+    "./utils": "./dist/utils.js",
+    "./cli": "./dist/cli.js"
+  },
+  "bin": {
+    "monk-version": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -21,8 +25,16 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prebuild": "tsc -p ./tsconfig.build.json && tsc-alias -p ./tsconfig.build.json",
-    "bundle": "monk-bundle --entry ./usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json",
+    "node:esm:env": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --experimental-specifier-resolution=node --experimental-json-modules\"",
+    "node:esm:env:debug": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --inspect-brk --experimental-specifier-resolution=node --experimental-json-modules\"",
+    "run:node": "node",
+    "run:ts-node": "ts-node --project ./../../tsconfig.node.json",
+    "node:esm": "yarn node:esm:env yarn run:node",
+    "node:esm:debug": "yarn node:esm:env:debug yarn run:node",
+    "node:ts": "yarn node:esm:env yarn run:ts-node",
+    "node:ts:debug": "yarn node:esm:env:debug yarn run:ts-node",
+    "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "bundle": "monk-bundle --entry usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json --external \"/@monk-js\\/*/\"",
     "build": "yarn prebuild && yarn install && yarn bundle",
     "bump-patch": "yarn version patch && yarn bump:git",
     "bump-minor": "yarn version minor && yarn bump:git",
@@ -36,12 +48,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/monk-js/monk-js.git",
-    "directory": "packages/utils"
+    "directory": "packages/version"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
+    "@monk-js/runner": "*",
+    "@monk-js/utils": "*",
     "fs": "^0.0.1-security"
   },
   "devDependencies": {
@@ -51,8 +65,6 @@
     "@types/node": "^20.14.9",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
-    "cross-env": "^7.0.3",
-    "cross-var": "^1.1.0",
     "eslint": "^9.6.0",
     "globals": "^15.7.0",
     "node-ts-loader": "^1.0.0",

@@ -66,10 +66,10 @@ export function processSpawn(command: string, args: string[], options: SpawnOpti
 /**
  * Builds package
  *
- * @param file package.json file path
  * @param errors Errors array
  * @param command Command
  * @param args Command arguments
+ * @param file package.json file path
  */
 export async function executePackageCommand(errors: CommandExecutionError[], command: string, args: string[], file: string) {
     const buildDirectory = path.dirname(file);
