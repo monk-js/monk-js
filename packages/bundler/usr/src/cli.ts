@@ -1,18 +1,8 @@
 #! /usr/bin/env node
 
 import * as path from 'path';
-import {buildJs, buildDts, getFileConstants, getProcessArgs} from "@monk-js/utils";
-
-type BuildEnv = {
-    entry: string,
-    root: string,
-    dist: string,
-    formats: string,
-    config: string | false,
-    external: string,
-    noJs: boolean,
-    noDts: boolean
-}
+import {getFileConstants, getProcessArgs} from "@monk-js/utils";
+import {buildDts, BuildEnv, buildJs} from "@/utils";
 
 const {env, args} = getProcessArgs<BuildEnv>(process.argv);
 

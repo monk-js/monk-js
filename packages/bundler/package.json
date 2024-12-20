@@ -1,25 +1,25 @@
 {
   "name": "@monk-js/bundler",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
   "exports": {
-    "default": "./dist/bundler.js",
-    "types": "./dist/bundler.d.ts",
-    "import": "./dist/bundler.js"
+    ".": "./dist/index.js",
+    "./utils": "./dist/utils.js",
+    "./cli": "./dist/cli.js"
   },
   "bin": {
-    "monk-bundle": "./dist/bundler.js"
+    "monk-bundle": "./dist/cli.js"
   },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
-  "main": "dist/bundler.js",
-  "module": "dist/bundler.js",
-  "types": "dist/bundler.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "node:esm:env": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --experimental-specifier-resolution=node --experimental-json-modules\"",
     "node:esm:env:debug": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --inspect-brk --experimental-specifier-resolution=node --experimental-json-modules\"",
@@ -30,7 +30,7 @@
     "node:ts": "yarn node:esm:env yarn run:ts-node",
     "node:ts:debug": "yarn node:esm:env:debug yarn run:ts-node",
     "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "bundle": "monk-bundle --entry ./usr/src/bundler.ts --formats es:js,esm:mjs --config ./tsconfig.build.json --no-dts --external \"/@monk-js\\/*/\"",
+    "bundle": "monk-bundle --entry usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json --external \"/@monk-js\\/*/\"",
     "build": "yarn prebuild && yarn install && yarn bundle",
     "bump-patch": "yarn version patch && yarn bump:git",
     "bump-minor": "yarn version minor && yarn bump:git",
@@ -51,7 +51,14 @@
   },
   "dependencies": {
     "@monk-js/utils": "*",
-    "fs": "^0.0.1-security"
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "fs": "^0.0.1-security",
+    "rollup": "^4.28.1",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-tsconfig-paths": "^1.5.2",
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",

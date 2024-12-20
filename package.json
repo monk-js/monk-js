@@ -1,17 +1,35 @@
 {
   "name": "@monk-js/monk-js",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "type": "module",
-  "description": "Node.js utilities for monorepo management",
+  "exports": {
+    ".": "./dist/index.js",
+    "./utils": "./dist/utils.js",
+    "./cli": "./dist/cli.js"
+  },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "prebuild": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild",
-    "build": "yarn prebuild && yarn install && monk-run yarn bundle",
+    "packages:prebuild": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild",
+    "packages:bundle": "yarn workspace @monk-js/utils bundle && yarn workspace @monk-js/runner bundle && yarn workspace @monk-js/bundler bundle",
+    "packages:build": "yarn packages:prebuild && yarn install && yarn packages:bundle",
+    "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "bundle": "monk-bundle --entry usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json --external \"/@monk-js\\/*/\"",
+    "build": "yarn prebuild && yarn install && yarn bundle",
+    "bump-patch": "yarn version patch && yarn bump:git",
+    "bump-minor": "yarn version minor && yarn bump:git",
+    "bump-major": "yarn version major && yarn bump:git",
+    "bump:git": "yarn bump:git-commit && yarn bump:git-tag && yarn bump:git-push",
+    "bump:git-commit": "cross-var git commit -a -m v$npm_package_version",
+    "bump:git-tag": "cross-var git tag -a v$npm_package_version -m v$npm_package_version",
+    "bump:git-push": "git push origin main && cross-var git push origin v$npm_package_version",
     "ci:build": "yarn build"
   },
   "publishConfig": {
@@ -25,6 +43,19 @@
     "@monk-js/bundler": "*",
     "@monk-js/runner": "*",
     "@monk-js/utils": "*"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.6.0",
+    "@types/node": "^20.14.9",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.14.1",
+    "eslint": "^9.6.0",
+    "globals": "^15.7.0",
+    "node-ts-loader": "^1.0.0",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.5.2"
   },
   "workspaces": [
     "./packages/*"

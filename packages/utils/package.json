@@ -1,25 +1,24 @@
 {
   "name": "@monk-js/utils",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
   "exports": {
-    "default": "./dist/utils.js",
-    "types": "./dist/utils.d.ts",
-    "import": "./dist/utils.js"
+    ".": "./dist/index.js",
+    "./utils": "./dist/utils.js"
   },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
-  "main": "dist/utils.js",
-  "module": "dist/utils.js",
-  "types": "dist/utils.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prebuild": "tsc -p ./tsconfig.build.json && tsc-alias -p ./tsconfig.build.json",
-    "bundle": "monk-bundle --entry ./usr/src/utils.ts --formats es:js,esm:mjs --config ./tsconfig.build.json --no-dts",
+    "bundle": "monk-bundle --entry ./usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json",
     "build": "yarn prebuild && yarn install && yarn bundle",
     "bump-patch": "yarn version patch && yarn bump:git",
     "bump-minor": "yarn version minor && yarn bump:git",
@@ -39,30 +38,21 @@
     "access": "public"
   },
   "dependencies": {
-    "@monk-js/bundler": "*",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "cross-env": "^7.0.3",
-    "cross-var": "^1.1.0",
-    "fs": "^0.0.1-security",
-    "rollup": "^4.28.1",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-tsconfig-paths": "^1.5.2",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.10",
-    "tsconfig-paths": "^4.2.0",
-    "tslib": "^2.8.1"
+    "fs": "^0.0.1-security"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.6.0",
+    "@monk-js/bundler": "*",
     "@types/node": "^20.14.9",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
+    "cross-env": "^7.0.3",
+    "cross-var": "^1.1.0",
     "eslint": "^9.6.0",
     "globals": "^15.7.0",
     "node-ts-loader": "^1.0.0",
+    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.5.2"
   },

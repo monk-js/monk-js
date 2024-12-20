@@ -1,25 +1,25 @@
 {
   "name": "@monk-js/runner",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
   "exports": {
-    "default": "./dist/runner.js",
-    "types": "./dist/runner.d.ts",
-    "import": "./dist/runner.js"
+    ".": "./dist/index.js",
+    "./utils": "./dist/utils.js",
+    "./cli": "./dist/cli.js"
   },
   "bin": {
-    "monk-run": "./dist/runner.js"
+    "monk-run": "./dist/cli.js"
   },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
-  "main": "dist/runner.js",
-  "module": "dist/runner.js",
-  "types": "dist/runner.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "node:esm:env": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --experimental-specifier-resolution=node --experimental-json-modules\"",
     "node:esm:env:debug": "cross-env NODE_OPTIONS=\"--import=node-ts-loader --inspect-brk --experimental-specifier-resolution=node --experimental-json-modules\"",
@@ -30,7 +30,7 @@
     "node:ts": "yarn node:esm:env yarn run:ts-node",
     "node:ts:debug": "yarn node:esm:env:debug yarn run:ts-node",
     "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "bundle": "monk-bundle --entry ./usr/src/runner.ts --formats es:js,esm:mjs --config ./tsconfig.build.json --no-dts --external \"/@monk-js\\/*/\"",
+    "bundle": "monk-bundle --entry usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json --external \"/@monk-js\\/*/\"",
     "build": "yarn prebuild && yarn install && yarn bundle",
     "bump-patch": "yarn version patch && yarn bump:git",
     "bump-minor": "yarn version minor && yarn bump:git",
