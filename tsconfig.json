@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "noEmit": true,
-    "outDir": "./dist/",
     "target": "ESNext",
     "lib": [
       "dom",
@@ -9,7 +8,6 @@
       "esnext"
     ],
     "module": "ESNext",
-    "sourceMap": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "esModuleInterop": true,

@@ -1,7 +1,8 @@
 #! /usr/bin/env node
 
 import * as path from 'path';
-import {getFileConstants, getFileList, runPackageCommand, getProcessArgs} from "@monk-js/utils";
+import {getFileConstants, getFileList, getProcessArgs} from "@monk-js/utils";
+import {runPackageCommand} from "@/utils";
 
 type BuildEnv = {
     root: string,
