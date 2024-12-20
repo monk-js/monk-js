@@ -1,6 +1,6 @@
 {
   "name": "@monk-js/monk-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
@@ -10,7 +10,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild && yarn install && monk-run yarn build",
+    "prebuild": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild",
+    "build": "yarn prebuild && yarn install && monk-run yarn bundle",
     "ci:build": "yarn build"
   },
   "publishConfig": {
