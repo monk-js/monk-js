@@ -8,6 +8,8 @@ type BuildEnv = {
     root: string,
     dist: string,
     formats: string,
+    config: string | false,
+    external: string,
     noJs: boolean,
     noDts: boolean
 }
@@ -20,9 +22,9 @@ env.dist ??= `./dist`;
 
 if (env.entry) {
     if (!env.noJs) {
-        await buildJs(path.resolve(__root, env.entry), path.resolve(__root, env.dist), __dirname, env.formats);
+        await buildJs(path.resolve(__root, env.entry), path.resolve(__root, env.dist), __dirname, env);
     }
     if (!env.noDts) {
-        await buildDts(path.resolve(__root, env.entry), path.resolve(__root, env.dist), __dirname);
+        await buildDts(path.resolve(__root, env.entry), path.resolve(__root, env.dist), __dirname, env);
     }
 }

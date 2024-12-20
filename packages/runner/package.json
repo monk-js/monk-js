@@ -1,6 +1,6 @@
 {
   "name": "@monk-js/runner",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
@@ -29,15 +29,16 @@
     "node:esm:debug": "yarn node:esm:env:debug yarn run:node",
     "node:ts": "yarn node:esm:env yarn run:ts-node",
     "node:ts:debug": "yarn node:esm:env:debug yarn run:ts-node",
-    "prebuild": "tsc -p tsconfig.build.json",
-    "build": "yarn prebuild && monk-bundle --formats es:js,esm:mjs --entry ./usr/src/runner.ts",
+    "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "bundle": "monk-bundle --entry ./usr/src/runner.ts --formats es:js,esm:mjs --config ./tsconfig.build.json --no-dts --external \"/@monk-js\\/*/\"",
+    "build": "yarn prebuild && yarn install && yarn bundle",
     "bump-patch": "yarn version patch && yarn bump:git",
     "bump-minor": "yarn version minor && yarn bump:git",
     "bump-major": "yarn version major && yarn bump:git",
     "bump:git": "yarn bump:git-commit && yarn bump:git-tag && yarn bump:git-push",
     "bump:git-commit": "cross-var git commit -a -m v$npm_package_version",
     "bump:git-tag": "cross-var git tag -a v$npm_package_version -m v$npm_package_version",
-    "bump:git-push": "git push origin master && cross-var git push origin v$npm_package_version",
+    "bump:git-push": "git push origin main && cross-var git push origin v$npm_package_version",
     "ci:build": "yarn build"
   },
   "repository": {
@@ -49,13 +50,13 @@
     "access": "public"
   },
   "dependencies": {
-    "@monk-js/bundler": "*",
     "@monk-js/utils": "*",
     "fs": "^0.0.1-security"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.6.0",
+    "@monk-js/bundler": "*",
     "@types/node": "^20.14.9",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
@@ -63,6 +64,7 @@
     "globals": "^15.7.0",
     "node-ts-loader": "^1.0.0",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
     "typescript": "^5.5.2"
   },
   "packageManager": "yarn@3.6.4+sha512.e70835d4d6d62c07be76b3c1529cb640c7443f0fe434ef4b6478a5a399218cbaf1511b396b3c56eb03bc86424cff2320f6167ad2fde273aa0df6e60b7754029f"

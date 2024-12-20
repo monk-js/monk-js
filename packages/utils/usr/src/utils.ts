@@ -5,6 +5,7 @@ import {fileURLToPath} from "url";
 import {InputOptions, ModuleFormat, OutputOptions, rollup} from "rollup";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import dts from "rollup-plugin-dts";
 import {spawn, SpawnOptions} from "node:child_process";
 import { cpus } from "node:os";
@@ -139,6 +140,10 @@ export function getProcessArgs<Env extends ScriptEnv = ScriptEnv, Args extends S
                 args.push(value);
             }
         }
+    }
+    // If previous parameter has no value, then this is boolean parameter
+    if (key != null) {
+        env[key] = true;
     }
     return {
         env,
@@ -314,26 +319,33 @@ export function getFileConstants(__file: string, __relative = './'): {
  * @param entry The path to the entry file to be bundled.
  * @param buildDir The directory where the output files will be generated.
  * @param basePath The base path to resolve file paths relative to.
- * @param formats Output formats
+ * @param env Environment variable
  */
-export async function buildJs(entry: string, buildDir: string, basePath: string, formats: string = 'es:js,esm:mjs,cjs'): Promise<void> {
-    formats ??= 'es:js,esm:mjs,cjs';
+export async function buildJs(entry: string, buildDir: string, basePath: string, env: Partial<{formats: string, config: string | false, external: string}> = {}): Promise<void> {
+    const formats =  env.formats ?? 'es:js,esm:mjs,cjs';
+    const tsconfig = typeof env.config === 'string' ? resolvePath(path.resolve(env.config), basePath) : env.config ?? false;
+    const external = typeof env.external === 'string'
+        ? env.external.startsWith('/') && env.external.endsWith('/')
+            ? new RegExp(env.external.substring(1, env.external.lastIndexOf('/')), env.external.substring(env.external.lastIndexOf('/')+1))
+            : env.external.split(',')
+        : /node_modules/;
 
     const input: InputOptions = {
         input: resolvePath(path.resolve(entry), basePath),
+        external
     }
 
     const fileName = path.basename(entry);
     const extName = path.extname(fileName);
     const moduleName = fileName.substring(0, fileName.length - extName.length);
 
-    console.log(`Building module: ${moduleName}`);
+    console.log(`Building module: ${moduleName}. Starting...`);
     const jobs: Promise<unknown>[] = [];
 
     const bundle = await rollup({
         ...input,
-        plugins: [typescript({
-            tsconfig: false
+        plugins: [nodeResolve(), typescript({
+            tsconfig
         })],
     });
 
@@ -360,6 +372,8 @@ export async function buildJs(entry: string, buildDir: string, basePath: string,
 
     await Promise.all(jobs);
     await bundle.close();
+
+    console.log(`Building module: ${moduleName}. Successfully!`);
 }
 
 /**
@@ -368,17 +382,26 @@ export async function buildJs(entry: string, buildDir: string, basePath: string,
  * @param entry The path to the entry file to be bundled.
  * @param buildDir The directory where the output files will be generated.
  * @param basePath The base path to resolve file paths relative to.
+ * @param env Environment variable
  */
-export async function buildDts(entry: string, buildDir: string, basePath: string): Promise<void> {
+export async function buildDts(entry: string, buildDir: string, basePath: string, env: Partial<{formats: string, config: string | false, external: string}> = {}): Promise<void> {
+    const tsconfig = typeof env.config === 'string' ? resolvePath(path.resolve(env.config), basePath) : env.config ?? false;
+    const external = typeof env.external === 'string'
+        ? env.external.startsWith('/') && env.external.endsWith('/')
+            ? new RegExp(env.external.substring(1, env.external.lastIndexOf('/')), env.external.substring(env.external.lastIndexOf('/')+1))
+            : env.external.split(',')
+        : /node_modules/;
+
     const input: InputOptions = {
         input: resolvePath(path.resolve(entry), basePath),
+        external
     }
 
     const fileName = path.basename(entry);
     const extName = path.extname(fileName);
     const moduleName = fileName.substring(0, fileName.length - extName.length);
 
-    console.log(`Building module meta: ${moduleName}`);
+    console.log(`Building module meta: ${moduleName}. Starting...`);
 
     const dtsOutput: OutputOptions = {
         file: resolvePath(path.resolve(buildDir, `${moduleName}.d.ts`), basePath),
@@ -388,10 +411,12 @@ export async function buildDts(entry: string, buildDir: string, basePath: string
 
     const dtsBundle = await rollup({
         ...input,
-        plugins: [typescript({
-            tsconfig: false
+        plugins: [nodeResolve(), typescript({
+            tsconfig
         }), dts()],
     });
     await dtsBundle.write(dtsOutput);
     await dtsBundle.close();
+
+    console.log(`Building module meta: ${moduleName}. Successfully!`);
 }
