@@ -1,6 +1,6 @@
 {
   "name": "@monk-js/monk-js",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -17,15 +17,16 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "packages:prebuild": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild",
-    "packages:bundle": "yarn workspace @monk-js/utils bundle && yarn workspace @monk-js/runner bundle && yarn workspace @monk-js/bundler bundle",
+    "packages:prebuild": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild && yarn workspace @monk-js/version prebuild",
+    "packages:bundle": "yarn workspace @monk-js/utils bundle && yarn workspace @monk-js/runner bundle && yarn workspace @monk-js/bundler bundle && yarn workspace @monk-js/version bundle",
     "packages:build": "yarn packages:prebuild && yarn install && yarn packages:bundle",
     "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "bundle": "monk-bundle --entry usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json --external \"/@monk-js\\/*/\"",
     "build": "yarn prebuild && yarn install && yarn bundle",
-    "bump-patch": "yarn version patch && yarn bump:git",
-    "bump-minor": "yarn version minor && yarn bump:git",
-    "bump-major": "yarn version major && yarn bump:git",
+    "bump-patch": "yarn version patch && yarn bump:version && yarn bump:git",
+    "bump-minor": "yarn version minor && yarn bump:version && yarn bump:git",
+    "bump-major": "yarn version major && yarn bump:version && yarn bump:git",
+    "bump:version": "monk-version --version $npm_package_version",
     "bump:git": "yarn bump:git-commit && yarn bump:git-tag && yarn bump:git-push",
     "bump:git-commit": "cross-var git commit -a -m v$npm_package_version",
     "bump:git-tag": "cross-var git tag -a v$npm_package_version -m v$npm_package_version",
@@ -42,7 +43,8 @@
   "dependencies": {
     "@monk-js/bundler": "*",
     "@monk-js/runner": "*",
-    "@monk-js/utils": "*"
+    "@monk-js/utils": "*",
+    "@monk-js/version": "*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",

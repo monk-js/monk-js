@@ -1,11 +1,15 @@
 {
   "name": "@monk-js/bundler",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
     "./utils": "./dist/utils.js",
     "./cli": "./dist/cli.js"
   },
