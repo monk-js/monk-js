@@ -6,6 +6,7 @@ import {InputOptions, ModuleFormat, OutputOptions, rollup} from "rollup";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
+import tsConfigPaths from "rollup-plugin-tsconfig-paths";
 import dts from "rollup-plugin-dts";
 import {spawn, SpawnOptions} from "node:child_process";
 import { cpus } from "node:os";
@@ -344,7 +345,7 @@ export async function buildJs(entry: string, buildDir: string, basePath: string,
 
     const bundle = await rollup({
         ...input,
-        plugins: [nodeResolve(), typescript({
+        plugins: [tsConfigPaths(), nodeResolve(), typescript({
             tsconfig
         })],
     });
@@ -411,7 +412,7 @@ export async function buildDts(entry: string, buildDir: string, basePath: string
 
     const dtsBundle = await rollup({
         ...input,
-        plugins: [nodeResolve(), typescript({
+        plugins: [tsConfigPaths(), nodeResolve(), typescript({
             tsconfig
         }), dts()],
     });
