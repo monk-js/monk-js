@@ -4,6 +4,15 @@ import {cpus} from "node:os";
 import {CommandExecutionError, CommandLineError, PackageJson} from "@monk-js/runner";
 
 /**
+ * Version command environment
+ */
+export type VersionEnv = {
+    root: string,
+    packages: string,
+    version: string,
+}
+
+/**
  * Updates package version
  * @param errors Errors array
  * @param version New version

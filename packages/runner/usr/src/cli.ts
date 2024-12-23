@@ -2,14 +2,9 @@
 
 import * as path from 'path';
 import {getFileConstants, getFileList, getProcessArgs} from "@monk-js/utils";
-import {runPackageCommand} from "@/utils";
+import {RunnerEnv, runPackageCommand} from "@/utils";
 
-type BuildEnv = {
-    root: string,
-    packages: string
-}
-
-const {env, args} = getProcessArgs<BuildEnv>(process.argv);
+const {env, args} = getProcessArgs<RunnerEnv>(process.argv);
 
 const command = args.shift();
 
@@ -22,7 +17,7 @@ if (command != null) {
     const packages: string[] = getFileList(path.resolve(__root, env.packages), __dirname)
         .filter((file: string) => !path.dirname(file).includes('node_modules') && path.basename(file) === 'package.json');
 
-    if (!await runPackageCommand(packages, command as string, args as string[])) {
+    if (!await runPackageCommand(env, packages, command as string, args as string[])) {
         process.exit(1);
     }
 }

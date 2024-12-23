@@ -7,7 +7,10 @@ import dts from "rollup-plugin-dts";
 import terser from "@rollup/plugin-terser";
 import {resolvePath} from "@monk-js/utils";
 
-export type BuildEnv = {
+/**
+ * Bundler command environment
+ */
+export type BundlerEnv = {
     entry: string,
     root: string,
     dist: string,
@@ -30,7 +33,7 @@ export type BuildEnv = {
  * @param basePath The base path to resolve file paths relative to.
  * @param env Environment variable
  */
-export async function buildJs(entry: string, buildDir: string, basePath: string, env: Partial<BuildEnv> = {}): Promise<void> {
+export async function buildJs(entry: string, buildDir: string, basePath: string, env: Partial<BundlerEnv> = {}): Promise<void> {
     const sourceMap = env.sourceMap ?? false;
     const formats = env.formats ?? 'es:js,esm:mjs,cjs';
     const tsconfig = typeof env.config === 'string' ? resolvePath(path.resolve(env.config), basePath) : env.config ?? false;
@@ -95,7 +98,7 @@ export async function buildJs(entry: string, buildDir: string, basePath: string,
  * @param basePath The base path to resolve file paths relative to.
  * @param env Environment variable
  */
-export async function buildDts(entry: string, buildDir: string, basePath: string, env: Partial<BuildEnv> = {}): Promise<void> {
+export async function buildDts(entry: string, buildDir: string, basePath: string, env: Partial<BundlerEnv> = {}): Promise<void> {
     const tsconfig = typeof env.config === 'string' ? resolvePath(path.resolve(env.config), basePath) : env.config ?? false;
     const external: (string | RegExp)[] = typeof env.external === 'string'
         ? env.external.startsWith('/') && env.external.endsWith('/')

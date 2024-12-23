@@ -3,12 +3,12 @@ import fs from "fs";
 import {fileURLToPath} from "url";
 
 /**
- * Значение параметров скрипта
+ * Script environment value
  */
 export type ScriptEnvValue = string | number | boolean | null;
 
 /**
- * Параметры скрипта
+ * Script environment
  */
 export type ScriptEnv = Record<string, ScriptEnvValue>;
 

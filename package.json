@@ -18,7 +18,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "packages:prebuild": "yarn workspace @monk-js/utils prebuild && yarn workspace @monk-js/runner prebuild && yarn workspace @monk-js/bundler prebuild && yarn workspace @monk-js/version prebuild",
-    "packages:bundle": "yarn workspace @monk-js/utils bundle && yarn workspace @monk-js/runner bundle && yarn workspace @monk-js/bundler bundle && yarn workspace @monk-js/version bundle",
+    "packages:bundle": "monk-run yarn bundle",
     "packages:build": "yarn packages:prebuild && yarn install && yarn packages:bundle",
     "prebuild": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "bundle": "monk-bundle --entry usr/src/index.ts --formats esm:mjs --config ./tsconfig.build.json --external \"/@monk-js\\/*/\"",
@@ -52,6 +52,7 @@
     "@types/node": "^20.14.9",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
+    "cross-var": "^1.1.0",
     "eslint": "^9.6.0",
     "globals": "^15.7.0",
     "node-ts-loader": "^1.0.0",

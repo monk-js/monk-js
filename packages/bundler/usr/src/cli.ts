@@ -2,9 +2,9 @@
 
 import * as path from 'path';
 import {getFileConstants, getProcessArgs} from "@monk-js/utils";
-import {buildDts, BuildEnv, buildJs} from "@/utils";
+import {buildDts, BundlerEnv, buildJs} from "@/utils";
 
-const {env, args} = getProcessArgs<BuildEnv>(process.argv);
+const {env, args} = getProcessArgs<BundlerEnv>(process.argv);
 
 const {__root, __dirname} = getFileConstants(import.meta.url, env.root ?? process.cwd());
 

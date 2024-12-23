@@ -1,6 +1,5 @@
 import path from "path";
 import fs from "fs";
-import process from "process";
 import {cpus} from "node:os";
 import {spawn, SpawnOptions} from "node:child_process";
 
@@ -28,6 +27,15 @@ export interface PackageJson {
     version: string;
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
+}
+
+/**
+ * Runner command environment
+ */
+export type RunnerEnv = {
+    root: string,
+    uncheck: boolean | string,
+    packages: string
 }
 
 /**
@@ -96,12 +104,13 @@ export async function executePackageCommand(errors: CommandExecutionError[], com
 /**
  * Executes a specified package command in parallel with a limited number of threads.
  *
+ * @param env Build environment.
  * @param packages Package file list.
  * @param command The process to execute.
  * @param args An array of arguments to be passed to the command.
  * @returns `false` if no errors occurred, or error code or an array of command error objects if errors were encountered.
  */
-export async function runPackageCommand(packages: string[], command: string, args: string[]): Promise<false | number | CommandExecutionError[]> {
+export async function runPackageCommand(env: Partial<RunnerEnv>, packages: string[], command: string, args: string[]): Promise<false | number | CommandExecutionError[]> {
     /**
      * Maximum number of threads available for processing.
      * It is calculated as half of the number of CPU cores (rounded) or a minimum of 2 threads.
@@ -119,21 +128,33 @@ export async function runPackageCommand(packages: string[], command: string, arg
 
     const deps: Record<string, string[]> = {};
 
-    // Scan all dependencies
-    for(const currentFile of packagesCopy) {
-        const currentPackageInfo: PackageJson = JSON.parse(fs.readFileSync(currentFile, 'utf-8'));
-        // Save package file => package name alias
-        files[currentFile] = currentPackageInfo.name;
+    let uncheck: boolean | string[] = [];
 
-        for (const file of packagesCopy) {
-            const packageInfo: PackageJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
-            deps[packageInfo.name] ??= [];
-            if (packageInfo.dependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
-                deps[packageInfo.name].push(currentPackageInfo.name);
+    // Process uncheck package list
+    if (env.uncheck === true || env.uncheck === '*') {
+        uncheck = true;
+    } else if (typeof env.uncheck === 'string') {
+        uncheck = env.uncheck.split(',');
+    }
+
+    if (uncheck !== true) {
+        // Scan all dependencies
+        for (const currentFile of packagesCopy) {
+            const currentPackageInfo: PackageJson = JSON.parse(fs.readFileSync(currentFile, 'utf-8'));
+            // Save package file => package name alias
+            files[currentFile] = currentPackageInfo.name;
+
+            for (const file of packagesCopy) {
+                const packageInfo: PackageJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
+                deps[packageInfo.name] ??= [];
+                // If package exists in other package dependencies
+                if (!uncheck.includes(packageInfo.name) && packageInfo.dependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
+                    deps[packageInfo.name].push(currentPackageInfo.name);
+                }
+                // if (packageInfo.devDependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
+                //     deps[packageInfo.name].push(currentPackageInfo.name);
+                // }
             }
-            // if (packageInfo.devDependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
-            //     deps[packageInfo.name].push(currentPackageInfo.name);
-            // }
         }
     }
 
@@ -142,7 +163,7 @@ export async function runPackageCommand(packages: string[], command: string, arg
 
     do {
         // Get all packages without dependencies
-        const emptyPackages = packagesCopy.filter(file=>Object.hasOwn(deps, files[file]) && deps[files[file]].length == 0);
+        const emptyPackages = uncheck !== true ? packagesCopy.filter(file => Object.hasOwn(deps, files[file]) && deps[files[file]].length == 0) : packagesCopy;
         // If all packages have dependencies, then throw error
         if (emptyPackages.length === 0 && packagesCopy.length > 0) {
             console.error(`Deadlock found for packages: ${packagesCopy.map(file => files[file]).join(', ')}`, deps);
@@ -157,21 +178,25 @@ export async function runPackageCommand(packages: string[], command: string, arg
             await Promise.allSettled(chunk.map(buildCommand));
             processedFiles += chunk.length;
         }
-        for(const file of emptyPackages) {
-            // Remove processed package
-            packagesCopy.splice(packagesCopy.indexOf(file), 1);
-            const packageName = files[file];
-            // Remove package from dependencies
-            delete deps[packageName];
-            for (const dep in deps) {
-                if (!Object.hasOwn(deps, dep)) {
-                    continue;
-                }
+        if (uncheck !== true) {
+            for (const file of emptyPackages) {
+                // Remove processed package
+                packagesCopy.splice(packagesCopy.indexOf(file), 1);
+                const packageName = files[file];
                 // Remove package from dependencies
-                deps[dep].splice(deps[dep].indexOf(packageName), 1);
+                delete deps[packageName];
+                for (const dep in deps) {
+                    if (!Object.hasOwn(deps, dep)) {
+                        continue;
+                    }
+                    // Remove package from dependencies
+                    deps[dep].splice(deps[dep].indexOf(packageName), 1);
+                }
             }
+        } else {
+            break;
         }
-    } while(packagesCopy.length > 0);
+    } while (packagesCopy.length > 0);
 
 
     if (errors.length > 0) {
