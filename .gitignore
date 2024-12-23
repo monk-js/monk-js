@@ -7,6 +7,7 @@ dist
 /gen
 *.http
 *.lock
+.npmrc
 
 # local env files
 .env.local

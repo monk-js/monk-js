@@ -6,15 +6,20 @@ Node.js utilities for monorepo management
 
 ```sh
 # npm
-npm install monk-js --save-dev
+npm install @monk-js/monk-js --save-dev
 
 # yarn
-yarn add -D monk-js
+yarn add -D @monk-js/monk-js
 ```
 
 ## Usage
 ```sh
-monk-build --formats es:js,esm:mjs,cjs --entry ./index.ts
+# Bundle file in various formats
+monk-bundle --entry ./index.ts [--formats es:js,esm:mjs,cjs --root ./ --dist ./dist --config tsconfig.json --minify --external "/@monk-js\/*/" --source-map --module main --no-dts] 
 
-monk-run yarn build
+# Run command to all packages
+monk-run [--root ./ --packages ./packages] yarn build
+
+# Update version to all packages
+monk-version [--root ./ --packages ./packages] --version 1.0.1
 ```

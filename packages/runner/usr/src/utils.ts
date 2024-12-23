@@ -26,6 +26,8 @@ export type CommandExecutionError = {
 export interface PackageJson {
     name: string;
     version: string;
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
 }
 
 /**
@@ -77,9 +79,11 @@ export async function executePackageCommand(errors: CommandExecutionError[], com
     try {
         const targetDir = path.resolve(buildDirectory);
         const packageInfo: PackageJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
-        process.chdir(targetDir);
         console.log(`Package: ${packageInfo.name}. Starting...`);
-        await processSpawn(command, args, {shell: true});
+        await processSpawn(command, args, {
+            cwd: targetDir,
+            shell: true
+        });
         console.log(`Package: ${packageInfo.name}. Successful!`);
     } catch (e: unknown) {
         const error: CommandLineError = e as unknown as CommandLineError;
@@ -95,9 +99,9 @@ export async function executePackageCommand(errors: CommandExecutionError[], com
  * @param packages Package file list.
  * @param command The process to execute.
  * @param args An array of arguments to be passed to the command.
- * @returns `false` if no errors occurred, or an array of command error objects if errors were encountered.
+ * @returns `false` if no errors occurred, or error code or an array of command error objects if errors were encountered.
  */
-export async function runPackageCommand(packages: string[], command: string, args: string[]): Promise<false | CommandExecutionError[]> {
+export async function runPackageCommand(packages: string[], command: string, args: string[]): Promise<false | number | CommandExecutionError[]> {
     /**
      * Maximum number of threads available for processing.
      * It is calculated as half of the number of CPU cores (rounded) or a minimum of 2 threads.
@@ -111,20 +115,64 @@ export async function runPackageCommand(packages: string[], command: string, arg
     let processedFiles = 0;
     const packagesCopy = [...packages];
 
-    // Save current working directory of the Node.js process
-    const cwd = process.cwd();
+    const files: Record<string, string> = {};
+
+    const deps: Record<string, string[]> = {};
+
+    // Scan all dependencies
+    for(const currentFile of packagesCopy) {
+        const currentPackageInfo: PackageJson = JSON.parse(fs.readFileSync(currentFile, 'utf-8'));
+        // Save package file => package name alias
+        files[currentFile] = currentPackageInfo.name;
+
+        for (const file of packagesCopy) {
+            const packageInfo: PackageJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
+            deps[packageInfo.name] ??= [];
+            if (packageInfo.dependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
+                deps[packageInfo.name].push(currentPackageInfo.name);
+            }
+            // if (packageInfo.devDependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
+            //     deps[packageInfo.name].push(currentPackageInfo.name);
+            // }
+        }
+    }
+
     const errors: CommandExecutionError[] = [];
     const buildCommand = executePackageCommand.bind(null, errors, command, args);
 
-    while (packagesCopy.length > 0) {
-        const chunk = packagesCopy.splice(0, maxThreads);
-        console.log(`Processing packages: ${processedFiles + chunk.length} of ${packages.length}`);
-        await Promise.allSettled(chunk.map(buildCommand));
-        processedFiles += chunk.length;
-    }
+    do {
+        // Get all packages without dependencies
+        const emptyPackages = packagesCopy.filter(file=>Object.hasOwn(deps, files[file]) && deps[files[file]].length == 0);
+        // If all packages have dependencies, then throw error
+        if (emptyPackages.length === 0 && packagesCopy.length > 0) {
+            console.error(`Deadlock found for packages: ${packagesCopy.map(file => files[file]).join(', ')}`, deps);
+            return 1;
+        }
+        // Clone array
+        const chunks = [...emptyPackages];
+        // Split by chunks
+        while (chunks.length > 0) {
+            const chunk = chunks.splice(0, maxThreads);
+            console.log(`Processing packages: ${processedFiles + chunk.length} of ${packages.length}`);
+            await Promise.allSettled(chunk.map(buildCommand));
+            processedFiles += chunk.length;
+        }
+        for(const file of emptyPackages) {
+            // Remove processed package
+            packagesCopy.splice(packagesCopy.indexOf(file), 1);
+            const packageName = files[file];
+            // Remove package from dependencies
+            delete deps[packageName];
+            for (const dep in deps) {
+                if (!Object.hasOwn(deps, dep)) {
+                    continue;
+                }
+                // Remove package from dependencies
+                deps[dep].splice(deps[dep].indexOf(packageName), 1);
+            }
+        }
+    } while(packagesCopy.length > 0);
 
-    // Restore current directory
-    process.chdir(cwd);
 
     if (errors.length > 0) {
         console.error(`Errors encountered during ${command} ${args.join(' ')}:`, errors.length);

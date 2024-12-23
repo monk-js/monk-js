@@ -22,5 +22,7 @@ if (command != null) {
     const packages: string[] = getFileList(path.resolve(__root, env.packages), __dirname)
         .filter((file: string) => !path.dirname(file).includes('node_modules') && path.basename(file) === 'package.json');
 
-    await runPackageCommand(packages, command as string, args as string[]);
+    if (!await runPackageCommand(packages, command as string, args as string[])) {
+        process.exit(1);
+    }
 }
