@@ -148,7 +148,7 @@ export async function runPackageCommand(env: Partial<RunnerEnv>, packages: strin
                 const packageInfo: PackageJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
                 deps[packageInfo.name] ??= [];
                 // If package exists in other package dependencies
-                if (!uncheck.includes(packageInfo.name) && packageInfo.dependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
+                if (!uncheck.includes(packageInfo.name) && packageInfo.dependencies?.[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {
                     deps[packageInfo.name].push(currentPackageInfo.name);
                 }
                 // if (packageInfo.devDependencies[currentPackageInfo.name] && !deps[packageInfo.name].includes(currentPackageInfo.name)) {

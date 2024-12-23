@@ -1,6 +1,6 @@
 {
   "name": "@monk-js/runner",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
