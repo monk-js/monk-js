@@ -1,6 +1,6 @@
 {
   "name": "@monk-js/version",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "license": "MIT",
   "type": "module",
   "description": "Node.js utilities for monorepo management",
