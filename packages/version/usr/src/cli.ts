@@ -16,7 +16,8 @@ if (env.version != null) {
     const packages: string[] = getFileList(path.resolve(__root, env.packages), __dirname)
         .filter((file: string) => !path.dirname(file).includes('node_modules') && path.basename(file) === 'package.json');
 
-    if (!await updatePackageVersion(packages, env.version)) {
+    // If result has errors
+    if (await updatePackageVersion(packages, env.version) !== false) {
         process.exit(1)
     }
 }
